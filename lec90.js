@@ -10,23 +10,23 @@ function init(){
 let c= init()
 c()
 
-// function x(){
-//     let a=1;
-//     console.log(a)
-//     function y(){
-//         a=2;
-//         console.log(a)
-//         function z(){
-//             a=3;
-//             console.log(a)
-//         }
+function x(){
+    let a=1;
+    console.log(a)
+    function y(){
+        a=2;
+        console.log(a)
+        function z(){
+            a=3;
+            console.log(a)
+        }
        
     
-//     }
-//     return y
+    }
+    return y
 
-// }
-// let a =x()
-// a()
-// let m=x()
-// m()
+}
+let a =x()
+a()
+let m=x()
+m()

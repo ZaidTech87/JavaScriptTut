@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced Car Racing Game</title>
+  <style>
+    /* General Body Styling */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background: #2c3e50;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
+  color: #fff;
+}
+
+/* Game Container */
+.game-container {
+  position: relative;
+  width: 400px;
+  height: 600px;
+  border: 3px solid #fff;
+  overflow: hidden;
+  background: #34495e;
+}
+
+/* Game Area (Road) */
+.game-area {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, #111, #444);
+}
+
+/* Player Car */
+.player-car {
+  position: absolute;
+  bottom: 20px;
+  left: 180px;
+  width: 40px;
+  height: 70px;
+  background: red;
+  border: 2px solid #fff;
+  border-radius: 5px;
+  z-index: 2;
+}
+
+/* Opponent Cars */
+.opponent-car {
+  position: absolute;
+  width: 40px;
+  height: 70px;
+  background: yellow;
+  border: 2px solid #000;
+  border-radius: 5px;
+  z-index: 1;
+}
+
+/* Scoreboard */
+.score-board {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 3;
+}
+
+.score-board h1 {
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <div class="game-area">
+      <div class="player-car"></div>
+    </div>
+    <div class="score-board">
+      <h1>Score: <span id="score">0</span></h1>
+    </div>
+  </div>
+  <script>
+  const gameArea = document.querySelector('.game-area');
+const playerCar = document.querySelector('.player-car');
+const scoreDisplay = document.getElementById('score');
+
+let player = { speed: 5, x: 180, score: 0 }; // Player position and speed
+let gameRunning = true;
+
+// Start the game loop
+function startGame() {
+  generateOpponentCars();
+  window.requestAnimationFrame(updateGame);
+}
+
+// Function to move opponent cars
+function moveOpponentCars() {
+  const opponentCars = document.querySelectorAll('.opponent-car');
+
+  opponentCars.forEach((car) => {
+    let carTop = parseInt(car.style.top);
+
+    if (carTop > 600) {
+      car.remove(); // Remove car if it goes off-screen
+      generateOpponentCar(); // Add a new opponent car
+    } else {
+      car.style.top = carTop + player.speed + 'px';
+    }
+
+    // Collision Detection
+    if (checkCollision(playerCar, car)) {
+      endGame();
+    }
+  });
+}
+
+// Generate Opponent Cars
+function generateOpponentCars() {
+  for (let i = 0; i < 3; i++) {
+    generateOpponentCar();
+  }
+}
+
+function generateOpponentCar() {
+  const opponentCar = document.createElement('div');
+  opponentCar.classList.add('opponent-car');
+  opponentCar.style.top = '-70px'; // Start above the screen
+  opponentCar.style.left = `${Math.random() * 300}px`; // Random position
+  gameArea.appendChild(opponentCar);
+}
+
+// Collision Detection
+function checkCollision(player, opponent) {
+  const playerRect = player.getBoundingClientRect();
+  const opponentRect = opponent.getBoundingClientRect();
+
+  return !(
+    playerRect.bottom < opponentRect.top ||
+    playerRect.top > opponentRect.bottom ||
+    playerRect.right < opponentRect.left ||
+    playerRect.left > opponentRect.right
+  );
+}
+
+// End Game
+function endGame() {
+  gameRunning = false;
+  alert(`Game Over! Your Score: ${player.score}`);
+  window.location.reload(); // Restart the game
+}
+
+// Update Game Loop
+function updateGame() {
+  if (!gameRunning) return;
+
+  // Move opponent cars
+  moveOpponentCars();
+
+  // Update score
+  player.score++;
+  scoreDisplay.textContent = player.score;
+
+  // Increase speed every 100 points
+  if (player.score % 100 === 0) {
+    player.speed += 0.5;
+  }
+
+  // Call the next frame
+  window.requestAnimationFrame(updateGame);
+}
+
+// Handle Player Movement
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowLeft' && player.x > 0) {
+    player.x -= 10;
+  } else if (e.key === 'ArrowRight' && player.x < 360) {
+    player.x += 10;
+  }
+
+  playerCar.style.left = player.x + 'px';
+});
+
+// Start the game when the page loads
+startGame();
+</script>
+
+</body>
+</html>

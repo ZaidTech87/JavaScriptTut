@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Escape the Box - CSS Only Game</title>
+  <style>
+    /* General body styles */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: #1e1e2f;
+  color: #fff;
+}
+
+/* Instructions */
+.instructions {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.instructions p {
+  font-size: 1rem;
+}
+
+/* Game Area */
+.game-area {
+  position: relative;
+  width: 400px;
+  height: 500px;
+  background: #29293d;
+  border: 3px solid #fff;
+  overflow: hidden;
+}
+
+/* Player (Controlled by Hover) */
+.player {
+  position: absolute;
+  bottom: 10px;
+  left: 180px;
+  width: 40px;
+  height: 40px;
+  background: #00ff00;
+  border: 2px solid #fff;
+  transition: all 0.3s ease;
+  z-index: 2;
+}
+
+/* Hover mechanics */
+.game-area:hover .player {
+  cursor: pointer;
+}
+
+.player:hover {
+  transform: scale(1.1);
+}
+
+/* Obstacles */
+.obstacle {
+  position: absolute;
+  width: 60px;
+  height: 20px;
+  background: red;
+  z-index: 1;
+  animation: moveObstacle 5s linear infinite;
+}
+
+/* Individual Obstacles */
+.obstacle1 {
+  top: 100px;
+  left: 0;
+  animation-duration: 4s;
+}
+
+.obstacle2 {
+  top: 250px;
+  right: 0;
+  animation-duration: 3.5s;
+  animation-direction: reverse;
+}
+
+.obstacle3 {
+  top: 400px;
+  left: 0;
+  animation-duration: 4.5s;
+}
+
+/* Goal */
+.goal {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  width: 80px;
+  height: 40px;
+  background: #00f;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  border: 2px solid #fff;
+  z-index: 2;
+}
+
+/* Goal hover effect (win indication) */
+.goal:hover {
+  background: #0f0;
+  color: #000;
+  cursor: pointer;
+}
+
+/* Obstacle animation */
+@keyframes moveObstacle {
+  0% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(300px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+  </style>
+</head>
+<body>
+  <div class="game-area">
+    <div class="player"></div>
+    <div class="obstacle obstacle1"></div>
+    <div class="obstacle obstacle2"></div>
+    <div class="obstacle obstacle3"></div>
+    <div class="goal">GOAL</div>
+  </div>
+  <div class="instructions">
+    <p>Hover over the box (player) and move it to the "GOAL" without touching the obstacles.</p>
+  </div>
+</body>
+</html>

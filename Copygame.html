@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Car Racing Game</title>
+  <style>
+    /* General Body Styles */
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+  background: #111;
+}
+
+/* Game Area */
+.game-area {
+  position: relative;
+  margin: auto;
+  height: 100vh;
+  width: 300px;
+  background: #555;
+  border: 2px solid #fff;
+  overflow: hidden;
+}
+
+/* Road */
+.road {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(to bottom, #333 10%, #222);
+  overflow: hidden;
+}
+
+/* Player Car */
+.player-car {
+  position: absolute;
+  bottom: 20px;
+  left: 130px;
+  width: 40px;
+  height: 70px;
+  background: red;
+  border: 2px solid #fff;
+  border-radius: 5px;
+}
+
+/* Opponent Cars */
+.opponent-car {
+  position: absolute;
+  width: 40px;
+  height: 70px;
+  background: yellow;
+  border: 2px solid #000;
+  border-radius: 5px;
+}
+
+  </style>
+  
+</head>
+<body>
+  <div class="game-area">
+    <div class="road">
+      <div class="player-car"></div>
+    </div>
+  </div>
+  <script>
+    const gameArea = document.querySelector('.game-area');
+const road = document.querySelector('.road');
+const playerCar = document.querySelector('.player-car');
+
+let isGameRunning = false;
+let player = { speed: 5, x: 130 }; // Initial position of player's car
+
+// Function to start the game
+function startGame() {
+  isGameRunning = true;
+  createOpponentCar();
+  requestAnimationFrame(gameLoop);
+}
+
+// Function to create an opponent car
+function createOpponentCar() {
+  const opponentCar = document.createElement('div');
+  opponentCar.classList.add('opponent-car');
+  opponentCar.style.left = `${Math.random() * 260}px`;
+  opponentCar.style.top = '-70px'; // Spawn above the screen
+  road.appendChild(opponentCar);
+}
+
+// Function to move the opponent cars
+function moveOpponentCars() {
+  const opponentCars = document.querySelectorAll('.opponent-car');
+  opponentCars.forEach(car => {
+    let topPosition = parseInt(car.style.top);
+    car.style.top = topPosition + player.speed + 'px';
+
+    // Remove cars that move out of the screen
+    if (topPosition > 600) {
+      car.remove();
+      createOpponentCar(); // Add a new opponent car
+    }
+
+    // Collision detection
+    if (checkCollision(playerCar, car)) {
+      endGame();
+    }
+  });
+}
+
+// Function to check for collision
+function checkCollision(player, opponent) {
+  const playerRect = player.getBoundingClientRect();
+  const opponentRect = opponent.getBoundingClientRect();
+
+  return !(
+    playerRect.bottom < opponentRect.top ||
+    playerRect.top > opponentRect.bottom ||
+    playerRect.right < opponentRect.left ||
+    playerRect.left > opponentRect.right
+  );
+}
+
+// Function to end the game
+function endGame() {
+  alert('Game Over!');
+  window.location.reload();
+  isGameRunning = false;
+}
+
+// Game Loop
+function gameLoop() {
+  if (!isGameRunning) return;
+
+  moveOpponentCars();
+  requestAnimationFrame(gameLoop);
+}
+
+// Handle Key Presses for Player Movement
+document.addEventListener('keydown', (e) => {
+  if (!isGameRunning) startGame();
+
+  if (e.key === 'ArrowLeft' && player.x > 0) {
+    player.x -= 10;
+  }
+  if (e.key === 'ArrowRight' && player.x < 260) {
+    player.x += 10;
+  }
+
+  playerCar.style.left = player.x + 'px';
+});
+
+  </script>
+  
+</body>
+</html>

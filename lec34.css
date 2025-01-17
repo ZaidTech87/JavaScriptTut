@@ -1,0 +1,14 @@
+body{
+    margin: 0;
+    background-color: rgb(88, 53, 10);
+}
+nav li{
+    display: flex;
+    margin:0;
+    background-color: gray;
+    margin:0 25px;
+    list-style: none;
+    text-align: justify;
+    font-size: 30px
+    /* background-color: rgb(97, 153, 202); */
+}

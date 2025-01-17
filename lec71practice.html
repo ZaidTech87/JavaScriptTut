@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+      body{
+        margin: 0%;
+      }
+    
+      
+     nav ul {
+      margin: 0%;
+        display: flex;
+       background-color: aqua;
+      
+     }
+     ul li{
+      margin: 40px;
+
+       text-decoration:circle;
+        font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+       font-size: larger;
+       /* background-color: rgb(150, 98, 30); */
+      text-decoration: none;
+      }
+      
+    </style>
+</head>
+<body>
+  <nav class="navigation_bar">
+      <ul class="xar">
+        <li>Home</li>
+        <li>About us</li>
+        <li>Contact us</li>
+      </ul>
+  </nav>
+  <div class="card" style="height: 400px; width:400px;">
+        <h3 class="card-title">${Contests[item].name}</h3>
+        <p>hello ther i am a programmmer for a beginner level</p>
+        <a href="#">Go to Contest</a>
+       
+      </div>
+
+  <script>
+    let url="https://www.youtube.com/watch?v=S09Mm2gJlwI&list=PLu0W_9lII9ahR1blWXxgSlL4y9iQBnLpR&t=46s"
+    let response=fetch(url)
+    response.then((v)=>{
+      return v.json()
+    }).then((contests)=>{
+      console.log(contests)
+      ihtml=""
+      for(item in contests){
+        console.log(contests[item])
+        ihtml+='
+        '
+      }
+    })
+  </script>
+</body>
+</html>

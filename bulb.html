@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>glowing bulb</title>
+    <style>
+        .bulb{
+            width: 340px;
+            height: 140px;
+            background-color:rgb(230, 69, 5)
+        }
+        .bulb2{
+            width: 340px;
+            height: 140px;
+            background-color: rgb(226, 226, 216);
+        }
+        .bulb3{
+            width: 340px;
+            height: 140px;
+            background-color:green
+        }
+    </style>
+</head>
+<body>
+    <div id="bulb">
+
+   <!-- //<img src="1700294466459.jpg" alt="none"> -->
+    </div>
+    <div id="bulb2">
+      
+    </div>
+    <div id="bulb3">   
+    </div>
+    
+
+    <script>
+        setInterval(async function(){
+            document.querySelector("#bulb").classList.toggle("bulb")
+        },1000)
+
+        setInterval(async function(){
+            document.querySelector("#bulb2").classList.toggle("bulb2")
+        },1000)
+
+
+        setInterval(async function(){
+            document.querySelector("#bulb3").classList.toggle("bulb3")
+        },1000)
+
+
+    </script>
+    
+   
+</body>
+</html>

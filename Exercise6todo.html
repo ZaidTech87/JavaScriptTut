@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To Do list</title>
+    <style>
+        .navbar  ul{
+            display: flex;
+            margin:0%;
+            background-color: rgb(245, 244, 244);
+        }
+        ul li{
+            margin: 30px;
+            list-style: none;
+            text-align: none;
+    
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 20px;
+            background-color: rgb(174, 221, 181);
+            padding: 8px;
+            border: 2px solid black;
+            border-radius: 8px;
+        }
+         nav button{
+           
+            margin: auto;
+            margin-left: 92%;
+            margin-bottom: 100%;
+        }
+        button{
+            margin: 8px;
+            background-color: antiquewhite;
+            padding: auto;
+            border-radius: 4px;
+        }
+        form{
+            text-align: center;
+            margin-top: 30%;
+            font-size: larger;
+        }
+        .formgroup1{
+            margin: 8px;
+        }
+        button:hover{
+            background-color: rgb(238, 139, 19);
+        }
+        
+
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+            <ul>
+                <li>Home</li>
+                <li>About</li>
+                <li>Todo-List</li>
+                <li>Contact</li>  
+            </ul> 
+    </nav>
+    <form >
+        <div class="formgroup1">
+        <label for="title">Email Adderess</label>
+        <input type="desc" class="form_control">
+    </div> 
+    <div class="formgroup2">
+        <label for="check-box">Phone No</label>
+        <input type="text" name="cont" id="come">
+
+    </div>
+<button id="submit">submit</button>
+    </form>
+
+
+    <script>
+        submit.addEventListener("click",(e)=>{
+            e.preventDefault()
+            let a=title.value
+            let b= desc.value
+            localStorage.setItem("todo",JSON.stringify[title,desc])
+            console.log(e)
+        })
+    </script>
+
+
+    
+</body>
+</html>

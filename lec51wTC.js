@@ -1,0 +1,11 @@
+let a=new Date()
+let b=a.getHours()
+let c=a.getMinutes()
+let d=a.getSeconds()
+let e=a.getDate()
+let g=a.getMonth()
+let h=a.getFullYear()
+
+console.log("Time=> "+b+":"+c+":"+d+"\nDate=> "+e+":"+g+":"+h)
+// let z= new Date()
+// console.log(z.getMonth())

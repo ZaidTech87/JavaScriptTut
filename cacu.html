@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic Calculator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="calculator">
+        <input type="text" id="display" readonly>
+        <div id="btn">
+            <button onclick="cleanKaro('c')">C</button>
+            <button onclick="delKaro()">⌫</button>
+            <button onclick="addKaro('0')">0</button>
+            <button  class='operator' onclick="addKaro('+')">+</button>
+             <button onclick="addKaro('1')">1</button>
+            <button onclick="addKaro('2')">2</button>
+            <button onclick="addKaro('3')">3</button>
+            <button  class='operator' onclick="addKaro('-')">-</button>
+            <button onclick="addKaro('4')">4</button>
+            <button onclick="addKaro('5')">5</button>
+            <button onclick="addKaro('6')">6</button>
+            <button  class='operator' onclick="addKaro('*')">*</button>
+            <button onclick="addKaro('9')">9</button>
+        
+            <button class='operator' onclick="calcuKaro()">=</button>
+            <button class='operator' onclick="addKaro('/')">/</button>
+            <button class="operator" onclick="addKaro('%')">%</button>
+        </div>
+    </div>
+    <script src="index.js"></script>
+
+</body>
+
+</html>

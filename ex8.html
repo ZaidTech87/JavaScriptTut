@@ -1,0 +1,428 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Alarm Clock</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #1a1a1a;
+            color: #fff;
+            min-height: 100vh;
+            margin: 0;
+            padding: 2rem;
+        }
+
+        .container {
+            background: #2d2d2d;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .clock {
+            font-size: 3rem;
+            letter-spacing: 3px;
+            margin: 2rem 0;
+            color: #00ff9d;
+        }
+
+        .alarm-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        select {
+            padding: 0.5rem;
+            border: none;
+            border-radius: 5px;
+            background: #404040;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        button {
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            background: #00ff9d;
+            color: #1a1a1a;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #00cc7a;
+        }
+
+        .alarms-list {
+            margin-top: 2rem;
+            width: 100%;
+        }
+
+        .alarm-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: #404040;
+            border-radius: 5px;
+        }
+
+        .delete-btn {
+            background: #ff4646;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #cc0000;
+        }
+        #ring,audio,source{
+            height: 35px;
+            width: 100px;
+        }
+        #ring{
+            text-align: center;
+            margin-left: 100px;
+           margin-bottom: 40px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Digital Alarm Clock</h1>
+        
+        <div class="clock" id="clock"></div>
+        <div id="ring">
+        <audio controls >
+            <source src="alarm.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+        <div class="alarm-controls">
+            <select id="hour"></select>
+            <select id="minute"></select>
+            <select id="second"></select>
+            <button onclick="setAlarm()">Set Alarm</button>
+        </div>
+
+        <div class="alarms-list" id="alarmsList"></div>
+    </div>
+
+    <script>
+        // Initialize time select options
+        function initializeTimeSelect() {
+            const hourSelect = document.getElementById('hour');
+            const minuteSelect = document.getElementById('minute');
+            const secondSelect = document.getElementById('second');
+
+            // Populate hours
+            for (let i = 0; i < 24; i++) {
+                const option = document.createElement('option');
+                option.value = i < 10 ? `0${i}` : i;
+                option.text = i < 10 ? `0${i}` : i;
+                hourSelect.appendChild(option);
+            }
+
+            // Populate minutes/seconds
+            for (let i = 0; i < 60; i++) {
+                const option = document.createElement('option');
+                option.value = i < 10 ? `0${i}` : i;
+                option.text = i < 10 ? `0${i}` : i;
+                minuteSelect.appendChild(option.cloneNode(true));
+                secondSelect.appendChild(option.cloneNode(true));
+            }
+        }
+
+        // Update clock display
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { 
+                hour12: false 
+            });
+            document.getElementById('clock').textContent = timeString;
+            
+            checkAlarms(timeString);
+        }
+
+        let alarms = [];
+
+        // Set new alarm
+        function setAlarm() {
+            const hour = document.getElementById('hour').value;
+            const minute = document.getElementById('minute').value;
+            const second = document.getElementById('second').value;
+            
+            const alarmTime = `${hour}:${minute}:${second}`;
+            
+            if (!alarms.includes(alarmTime)) {
+                alarms.push(alarmTime);
+                displayAlarms();
+            }
+        }
+
+        // Display active alarms
+        function displayAlarms() {
+            const alarmsList = document.getElementById('alarmsList');
+            alarmsList.innerHTML = '';
+            
+            alarms.forEach((alarm, index) => {
+                const alarmItem = document.createElement('div');
+                alarmItem.className = 'alarm-item';
+                alarmItem.innerHTML = `
+                    <span>${alarm}</span>
+                    <button class="delete-btn" onclick="deleteAlarm(${index})">Delete</button>
+                `;
+                alarmsList.appendChild(alarmItem);
+            });
+        }
+
+        // Delete alarm
+        function deleteAlarm(index) {
+            alarms.splice(index, 1);
+            displayAlarms();
+        }
+
+        // Check active alarms
+        function checkAlarms(currentTime) {
+            alarms.forEach((alarm, index) => {
+                if (alarm === currentTime) {
+                    alert('ALARM! - ' + currentTime);
+                    deleteAlarm(index);
+                }
+            });
+        }
+
+        // Initialize the app
+        initializeTimeSelect();
+        setInterval(updateClock, 1000);
+        updateClock(); // Initial call
+    </script>
+</body>
+</html> -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Alarm Clock</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #1a1a1a;
+            color: #fff;
+            min-height: 100vh;
+            margin: 0;
+            padding: 2rem;
+        }
+
+        .container {
+            background: #2d2d2d;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .clock {
+            font-size: 3rem;
+            letter-spacing: 3px;
+            margin: 2rem 0;
+            color: #00ff9d;
+        }
+
+        .alarm-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        select {
+            padding: 0.5rem;
+            border: none;
+            border-radius: 5px;
+            background: #404040;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        button {
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            background: #00ff9d;
+            color: #1a1a1a;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #00cc7a;
+        }
+
+        .alarms-list {
+            margin-top: 2rem;
+            width: 100%;
+        }
+
+        .alarm-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: #404040;
+            border-radius: 5px;
+        }
+
+        .delete-btn {
+            background: #ff4646;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #cc0000;
+        }
+
+        /* Hide audio controls */
+        #alarmSound {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Digital Alarm Clock</h1>
+        
+        <div class="clock" id="clock"></div>
+        
+        <!-- Audio element for alarm sound -->
+        <audio id="alarmSound" src="alarm.mp3"></audio>
+
+        <div class="alarm-controls">
+            <select id="hour"></select>
+            <select id="minute"></select>
+            <select id="second"></select>
+            <button onclick="setAlarm()">Set Alarm</button>
+        </div>
+
+        <div class="alarms-list" id="alarmsList"></div>
+    </div>
+
+    <script>
+        // Audio initialization
+        const alarmSound = document.getElementById('alarmSound');
+        let isAlarmPlaying = false;
+
+        // Initialize time select options
+        function initializeTimeSelect() {
+            const hourSelect = document.getElementById('hour');
+            const minuteSelect = document.getElementById('minute');
+            const secondSelect = document.getElementById('second');
+
+            // Populate hours
+            for (let i = 0; i < 24; i++) {
+                const option = document.createElement('option');
+                option.value = i < 10 ? `0${i}` : i;
+                option.text = i < 10 ? `0${i}` : i;
+                hourSelect.appendChild(option);
+            }
+
+            // Populate minutes/seconds
+            for (let i = 0; i < 60; i++) {
+                const option = document.createElement('option');
+                option.value = i < 10 ? `0${i}` : i;
+                option.text = i < 10 ? `0${i}` : i;
+                minuteSelect.appendChild(option.cloneNode(true));
+                secondSelect.appendChild(option.cloneNode(true));
+            }
+        }
+
+        // Update clock display
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { 
+                hour12: false 
+            });
+            document.getElementById('clock').textContent = timeString;
+            
+            checkAlarms(timeString);
+        }
+
+        let alarms = [];
+
+        // Set new alarm
+        function setAlarm() {
+            const hour = document.getElementById('hour').value;
+            const minute = document.getElementById('minute').value;
+            const second = document.getElementById('second').value;
+            
+            const alarmTime = `${hour}:${minute}:${second}`;
+            
+            if (!alarms.includes(alarmTime)) {
+                alarms.push(alarmTime);
+                displayAlarms();
+            }
+        }
+
+        // Display active alarms
+        function displayAlarms() {
+            const alarmsList = document.getElementById('alarmsList');
+            alarmsList.innerHTML = '';
+            
+            alarms.forEach((alarm, index) => {
+                const alarmItem = document.createElement('div');
+                alarmItem.className = 'alarm-item';
+                alarmItem.innerHTML = `
+                    <span>${alarm}</span>
+                    <button class="delete-btn" onclick="deleteAlarm(${index})">Delete</button>
+                `;
+                alarmsList.appendChild(alarmItem);
+            });
+        }
+
+        // Delete alarm
+        function deleteAlarm(index) {
+            alarms.splice(index, 1);
+            displayAlarms();
+            // Stop alarm sound when deleting
+            if(alarms.length === 0) {
+                alarmSound.pause();
+                alarmSound.currentTime = 0;
+            }
+        }
+
+        // Check active alarms
+        function checkAlarms(currentTime) {
+            alarms.forEach((alarm, index) => {
+                if (alarm === currentTime) {
+                    // Play alarm sound
+                    alarmSound.currentTime = 0;
+                    alarmSound.play();
+                    // Delete alarm after triggering
+                    deleteAlarm(index);
+                }
+            });
+        }
+
+        // Initialize the app
+        initializeTimeSelect();
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>

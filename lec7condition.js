@@ -1,4 +1,4 @@
-//its will run only browser
+its will run only browser
 let a=prompt("enter yours age: ")
 a=Number.parseInt(a);
 if(a<0){

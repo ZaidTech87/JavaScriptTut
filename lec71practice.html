@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -58,5 +58,518 @@
       }
     })
   </script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Snake - Ultimate Edition</title>
+    <style>
+        :root {
+            --primary: #00ff88;
+            --secondary: #3700ff;
+            --background: #0a1929;
+        }
+
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--background);
+            color: white;
+            font-family: 'Roboto', sans-serif;
+            touch-action: none;
+            min-height: 100vh;
+        }
+
+        .game-container {
+            position: relative;
+            margin: 20px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        canvas {
+            border: 3px solid #1a3650;
+            border-radius: 15px;
+            background: #00000020;
+            width: 100%;
+            image-rendering: crisp-edges;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            font-size: 1.2em;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .powerup-indicator {
+            display: flex;
+            gap: 10px;
+        }
+
+        .mobile-controls {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            gap: 10px;
+        }
+
+        .mobile-btn {
+            width: 60px;
+            height: 60px;
+            background: #ffffff20;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            user-select: none;
+        }
+
+        @media (max-width: 600px) {
+            .mobile-controls {
+                display: flex;
+            }
+        }
+
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #0a1929ee;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .game-modes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .mode-card {
+            background: #122738;
+            padding: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .mode-card:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="hud">
+        <div>Score: <span id="score">0</span></div>
+        <div>High Score: <span id="high-score">0</span></div>
+        <div class="powerup-indicator" id="powerups"></div>
+    </div>
+
+    <div class="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div class="overlay" id="overlay"></div>
+    </div>
+
+    <div class="mobile-controls">
+        <div class="mobile-btn" id="up">↑</div>
+        <div class="mobile-btn" id="left">←</div>
+        <div class="mobile-btn" id="right">→</div>
+        <div class="mobile-btn" id="down">↓</div>
+    </div>
+
+    <div class="modal" id="mainMenu">
+        <h1>Quantum Snake</h1>
+        <div class="game-modes">
+            <div class="mode-card" onclick="startGame('classic')">
+                <h3>Classic Mode</h3>
+                <p>Traditional snake gameplay</p>
+            </div>
+            <div class="mode-card" onclick="startGame('time-attack')">
+                <h3>Time Attack</h3>
+                <p>Score as much as possible in 2 minutes!</p>
+            </div>
+            <div class="mode-card" onclick="startGame('chaos')">
+                <h3>Chaos Mode</h3>
+                <p>Random power-ups and obstacles</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class QuantumSnake {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.resizeCanvas();
+                
+                this.GRID_SIZE = 20;
+                this.TILE_COUNT = this.canvas.width / this.GRID_SIZE;
+                
+                this.gameState = {
+                    snake: [],
+                    direction: { x: 0, y: 0 },
+                    food: null,
+                    powerUps: [],
+                    score: 0,
+                    highScore: localStorage.getItem('quantumSnakeHS') || 0,
+                    activePowerUps: new Map(),
+                    gameMode: 'classic',
+                    isPaused: false,
+                    mobileInput: { x: 0, y: 0 }
+                };
+
+                this.powerUpTypes = {
+                    speed: { color: '#ffaa00', duration: 5000, effect: this.speedBoost },
+                    growth: { color: '#00ff00', duration: null, effect: this.growthSpurt },
+                    invincible: { color: '#ffffff', duration: 3000, effect: this.invincibility },
+                    multi: { color: '#ff00ff', duration: 10000, effect: this.multiScore }
+                };
+
+                this.init();
+            }
+
+            init() {
+                window.addEventListener('resize', () => this.resizeCanvas());
+                document.addEventListener('keydown', (e) => this.handleKeyDown(e));
+                this.setupMobileControls();
+                this.showMainMenu();
+            }
+
+            resizeCanvas() {
+                this.canvas.width = Math.min(window.innerWidth - 40, 600);
+                this.canvas.height = this.canvas.width;
+            }
+
+            startGame(mode) {
+                this.gameState = {
+                    ...this.gameState,
+                    snake: [{ x: 10, y: 10 }],
+                    direction: { x: 0, y: 0 },
+                    food: this.generateFood(),
+                    powerUps: [],
+                    score: 0,
+                    gameMode: mode,
+                    isPaused: false,
+                    activePowerUps: new Map()
+                };
+
+                this.updateHUD();
+                document.getElementById('mainMenu').style.display = 'none';
+                this.gameLoop();
+            }
+
+            gameLoop() {
+                if (this.gameState.isPaused) return;
+
+                // Update game state
+                this.updateSnake();
+                this.checkCollisions();
+                this.checkPowerUps();
+                this.spawnPowerUps();
+
+                // Render
+                this.draw();
+
+                requestAnimationFrame(() => this.gameLoop());
+            }
+
+            updateSnake() {
+                const head = { ...this.gameState.snake[0] };
+                
+                // Mobile input handling
+                if (this.gameState.mobileInput.x !== 0 || this.gameState.mobileInput.y !== 0) {
+                    this.gameState.direction = { ...this.gameState.mobileInput };
+                    this.gameState.mobileInput = { x: 0, y: 0 };
+                }
+
+                head.x += this.gameState.direction.x;
+                head.y += this.gameState.direction.y;
+                this.gameState.snake.unshift(head);
+
+                // Check food collision
+                if (head.x === this.gameState.food.x && head.y === this.gameState.food.y) {
+                    this.gameState.score += 10;
+                    this.gameState.food = this.generateFood();
+                    this.spawnPowerUp();
+                    this.updateHUD();
+                } else {
+                    this.gameState.snake.pop();
+                }
+            }
+
+            checkCollisions() {
+                const head = this.gameState.snake[0];
+                
+                // Wall collision
+                if (!this.gameState.activePowerUps.has('invincible')) {
+                    if (head.x < 0 || head.x >= this.TILE_COUNT ||
+                        head.y < 0 || head.y >= this.TILE_COUNT) {
+                        this.gameOver();
+                        return;
+                    }
+                } else {
+                    // Wrap around when invincible
+                    head.x = (head.x + this.TILE_COUNT) % this.TILE_COUNT;
+                    head.y = (head.y + this.TILE_COUNT) % this.TILE_COUNT;
+                }
+
+                // Self collision
+                for (let i = 1; i < this.gameState.snake.length; i++) {
+                    if (head.x === this.gameState.snake[i].x &&
+                        head.y === this.gameState.snake[i].y &&
+                        !this.gameState.activePowerUps.has('invincible')) {
+                        this.gameOver();
+                        return;
+                    }
+                }
+            }
+
+            spawnPowerUp() {
+                if (Math.random() < 0.3 && this.gameState.powerUps.length < 3) {
+                    const types = Object.keys(this.powerUpTypes);
+                    const type = types[Math.floor(Math.random() * types.length)];
+                    
+                    this.gameState.powerUps.push({
+                        type,
+                        x: Math.floor(Math.random() * this.TILE_COUNT),
+                        y: Math.floor(Math.random() * this.TILE_COUNT),
+                        spawnedAt: Date.now()
+                    });
+                }
+            }
+
+            checkPowerUps() {
+                const now = Date.now();
+                const head = this.gameState.snake[0];
+                
+                this.gameState.powerUps = this.gameState.powerUps.filter(powerUp => {
+                    if (head.x === powerUp.x && head.y === powerUp.y) {
+                        this.activatePowerUp(powerUp.type);
+                        return false;
+                    }
+                    return (now - powerUp.spawnedAt) < 10000;
+                });
+
+                // Update active powerups
+                this.gameState.activePowerUps.forEach((expiry, type) => {
+                    if (now > expiry) {
+                        this.deactivatePowerUp(type);
+                    }
+                });
+            }
+
+            activatePowerUp(type) {
+                const config = this.powerUpTypes[type];
+                config.effect.call(this, true);
+                
+                const expiry = config.duration ? Date.now() + config.duration : null;
+                this.gameState.activePowerUps.set(type, expiry);
+                this.updatePowerupDisplay();
+            }
+
+            deactivatePowerUp(type) {
+                this.powerUpTypes[type].effect.call(this, false);
+                this.gameState.activePowerUps.delete(type);
+                this.updatePowerupDisplay();
+            }
+
+            // Power-up effects
+            speedBoost(activate) {
+                this.gameState.snakeSpeed = activate ? 0.8 : 1;
+            }
+
+            growthSpurt(activate) {
+                if (activate) this.gameState.snake.push(...this.gameState.snake.slice(-1));
+            }
+
+            invincibility(activate) {
+                // Visual effect handled in render
+            }
+
+            multiScore(activate) {
+                this.gameState.scoreMultiplier = activate ? 2 : 1;
+            }
+
+            draw() {
+                // Clear canvas
+                this.ctx.fillStyle = var(--background);
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // Draw snake
+                this.gameState.snake.forEach((segment, index) => {
+                    const size = this.GRID_SIZE * (0.9 - index * 0.01);
+                    this.ctx.fillStyle = this.getSnakeColor(index);
+                    this.ctx.beginPath();
+                    this.ctx.roundRect(
+                        segment.x * this.GRID_SIZE + (this.GRID_SIZE - size)/2,
+                        segment.y * this.GRID_SIZE + (this.GRID_SIZE - size)/2,
+                        size,
+                        size,
+                        5
+                    );
+                    this.ctx.fill();
+                });
+
+                // Draw food
+                this.ctx.fillStyle = '#ff0000';
+                this.ctx.beginPath();
+                this.ctx.arc(
+                    this.gameState.food.x * this.GRID_SIZE + this.GRID_SIZE/2,
+                    this.gameState.food.y * this.GRID_SIZE + this.GRID_SIZE/2,
+                    this.GRID_SIZE/2 - 2,
+                    0,
+                    Math.PI * 2
+                );
+                this.ctx.fill();
+
+                // Draw power-ups
+                this.gameState.powerUps.forEach(powerUp => {
+                    this.ctx.fillStyle = this.powerUpTypes[powerUp.type].color;
+                    this.ctx.beginPath();
+                    this.ctx.arc(
+                        powerUp.x * this.GRID_SIZE + this.GRID_SIZE/2,
+                        powerUp.y * this.GRID_SIZE + this.GRID_SIZE/2,
+                        this.GRID_SIZE/3,
+                        0,
+                        Math.PI * 2
+                    );
+                    this.ctx.fill();
+                });
+            }
+
+            getSnakeColor(index) {
+                if (this.gameState.activePowerUps.has('invincible')) {
+                    return `hsl(${Date.now()/10 % 360}, 100%, 50%)`;
+                }
+                const hue = 120 + (index * 2);
+                return `hsl(${hue}, 100%, 50%)`;
+            }
+
+            updateHUD() {
+                document.getElementById('score').textContent = this.gameState.score;
+                if (this.gameState.score > this.gameState.highScore) {
+                    this.gameState.highScore = this.gameState.score;
+                    localStorage.setItem('quantumSnakeHS', this.gameState.highScore);
+                    document.getElementById('high-score').textContent = this.gameState.highScore;
+                }
+            }
+
+            updatePowerupDisplay() {
+                const container = document.getElementById('powerups');
+                container.innerHTML = Array.from(this.gameState.activePowerUps.keys())
+                    .map(type => `<div style="color: ${this.powerUpTypes[type].color}">${type}</div>`)
+                    .join('');
+            }
+
+            setupMobileControls() {
+                const mobileBtns = document.querySelectorAll('.mobile-btn');
+                mobileBtns.forEach(btn => {
+                    btn.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        const direction = btn.id;
+                        this.handleMobileInput(direction);
+                    });
+                });
+            }
+
+            handleMobileInput(direction) {
+                const inputMap = {
+                    up: { x: 0, y: -1 },
+                    down: { x: 0, y: 1 },
+                    left: { x: -1, y: 0 },
+                    right: { x: 1, y: 0 }
+                };
+                
+                const newDir = inputMap[direction];
+                if (newDir.x !== -this.gameState.direction.x || 
+                    newDir.y !== -this.gameState.direction.y) {
+                    this.gameState.mobileInput = newDir;
+                }
+            }
+
+            handleKeyDown(e) {
+                if (e.key === 'Escape') this.togglePause();
+                
+                const keyMap = {
+                    ArrowUp: { x: 0, y: -1 },
+                    ArrowDown: { x: 0, y: 1 },
+                    ArrowLeft: { x: -1, y: 0 },
+                    ArrowRight: { x: 1, y: 0 }
+                };
+
+                const newDir = keyMap[e.key];
+                if (newDir && !this.gameState.isPaused) {
+                    if (newDir.x !== -this.gameState.direction.x || 
+                        newDir.y !== -this.gameState.direction.y) {
+                        this.gameState.direction = newDir;
+                    }
+                }
+            }
+
+            togglePause() {
+                this.gameState.isPaused = !this.gameState.isPaused;
+                if (!this.gameState.isPaused) this.gameLoop();
+            }
+
+            gameOver() {
+                document.getElementById('mainMenu').style.display = 'block';
+                this.gameState.isPaused = true;
+            }
+
+            showMainMenu() {
+                document.getElementById('mainMenu').style.display = 'block';
+            }
+
+            generateFood() {
+                let newFood;
+                do {
+                    newFood = {
+                        x: Math.floor(Math.random() * this.TILE_COUNT),
+                        y: Math.floor(Math.random() * this.TILE_COUNT)
+                    };
+                } while (this.gameState.snake.some(segment => 
+                    segment.x === newFood.x && segment.y === newFood.y
+                ));
+                return newFood;
+            }
+        }
+
+        // Initialize game
+        const game = new QuantumSnake();
+
+        // Global functions for UI
+        function startGame(mode) {
+            game.startGame(mode);
+        }
+
+        function togglePause() {
+            game.togglePause();
+        }
+    </script>
 </body>
 </html>

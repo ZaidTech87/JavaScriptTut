@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantumCalc - Advanced Scientific Calculator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.7.0/math.js"></script>
+    <style>
+        :root {
+            --primary: #00ff88;
+            --secondary: #7d3cff;
+            --accent: #ff2d55;
+            --background: #0a1929;
+            --button-hover: #1a3650;
+            --glass: rgba(255, 255, 255, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(45deg, #0f0c29, #302b63, #24243e);
+            color: white;
+        }
+
+        .calculator {
+            background: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+            backdrop-filter: blur(15px) saturate(180%);
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.4);
+            width: 450px;
+            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calculator::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, var(--primary), transparent);
+            animation: rotate 20s linear infinite;
+            opacity: 0.1;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #display {
+            width: 100%;
+            height: 120px;
+            margin-bottom: 20px;
+            background: var(--glass);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px;
+            font-size: 2.5em;
+            color: var(--primary);
+            text-align: right;
+            padding: 20px;
+            overflow-x: auto;
+            transition: all 0.3s ease;
+        }
+
+        #history {
+            height: 100px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: var(--glass);
+            border-radius: 10px;
+            overflow-y: auto;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+        }
+
+        button {
+            padding: 18px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 12px;
+            background: var(--glass);
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1));
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        button:hover {
+            background: var(--button-hover);
+            transform: translateY(-2px);
+        }
+
+        button:hover::before {
+            opacity: 1;
+        }
+
+        .operator {
+            background: rgba(0, 255, 136, 0.15);
+            color: var(--primary);
+        }
+
+        .scientific {
+            background: rgba(125, 60, 255, 0.15);
+            color: var(--secondary);
+        }
+
+        .constants {
+            background: rgba(255, 45, 85, 0.15);
+            color: var(--accent);
+        }
+
+        .equals {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            grid-column: span 2;
+        }
+
+        .history-btn {
+            grid-column: span 2;
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        @media (max-width: 480px) {
+            .calculator {
+                width: 95%;
+                padding: 15px;
+            }
+            
+            button {
+                padding: 15px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div id="history"></div>
+        <input type="text" id="display" readonly> 
+        <div class="buttons">
+            <!-- Advanced Functions -->
+            <button class="scientific" onclick="addFunction('sin(')">sin</button>
+            <button class="scientific" onclick="addFunction('cos(')">cos</button>
+            <button class="scientific" onclick="addFunction('tan(')">tan</button>
+            <button class="scientific" onclick="addFunction('log(')">log</button>
+            <button class="scientific" onclick="addFunction('ln(')">ln</button>
+
+            <button class="scientific" onclick="addFunction('√(')">√</button>
+            <button class="scientific" onclick="addFunction('^')">^</button>
+            <button class="scientific" onclick="addFunction('!')">!</button>
+            <button class="scientific" onclick="addFunction('1/')">1/x</button>
+            <button class="scientific" onclick="addFunction('π')">π</button>
+
+            <!-- Constants and Units -->
+            <button class="constants" onclick="addToDisplay('e')">e</button>
+            <button class="constants" onclick="addToDisplay('deg')">deg</button>
+            <button class="constants" onclick="addToDisplay('rad')">rad</button>
+            <button class="constants" onclick="addToDisplay('rand')">rand</button>
+            <button class="constants" onclick="addToDisplay('∞')">∞</button>
+
+            <!-- Basic Operations -->
+            <button onclick="clearDisplay()">C</button>
+            <button onclick="backspace()">⌫</button>
+            <button class="operator" onclick="addToDisplay('%')">%</button>
+            <button class="operator" onclick="addToDisplay('/')">/</button>
+            <button class="operator" onclick="addToDisplay('*')">×</button>
+
+            <button onclick="addToDisplay('7')">7</button>
+            <button onclick="addToDisplay('8')">8</button>
+            <button onclick="addToDisplay('9')">9</button>
+            <button class="operator" onclick="addToDisplay('-')">-</button>
+            <button onclick="addToDisplay('(')">(</button>
+
+            <button onclick="addToDisplay('4')">4</button>
+            <button onclick="addToDisplay('5')">5</button>
+            <button onclick="addToDisplay('6')">6</button>
+            <button class="operator" onclick="addToDisplay('+')">+</button>
+            <button onclick="addToDisplay(')')">)</button>
+
+            <button onclick="addToDisplay('1')">1</button>
+            <button onclick="addToDisplay('2')">2</button>
+            <button onclick="addToDisplay('3')">3</button>
+            <button class="scientific" onclick="addToDisplay('²')">x²</button>
+            <button class="scientific" onclick="addToDisplay('³')">x³</button>
+
+            <button onclick="addToDisplay('0')">0</button>
+            <button onclick="addToDisplay('.')">.</button>
+            <button class="equals" onclick="calculate()">=</button>
+            <button class="scientific" onclick="addToDisplay('E')">EXP</button>
+            <button class="history-btn" onclick="toggleHistory()">📜</button>
+        </div>
+    </div>
+
+    <script>
+        const display = document.getElementById('display');
+        const historyDiv = document.getElementById('history');
+        let history = [];
+        let showHistory = true;
+
+        function addToDisplay(value) {
+            display.value += value;
+        }
+
+        function addFunction(func) {
+            if (['sin(', 'cos(', 'tan(', 'ln(', 'log(', '√('].includes(func)) {
+                display.value += func;
+            } else {
+                addToDisplay(func);
+            }
+        }
+
+        function clearDisplay() {
+            display.value = '';
+        }
+
+        function backspace() {
+            display.value = display.value.slice(0, -1);
+        }
+
+        function toggleHistory() {
+            showHistory = !showHistory;
+            historyDiv.style.display = showHistory ? 'block' : 'none';
+        }
+
+        function calculate() {
+            try {
+                let expr = display.value
+                    .replace(/π/g, Math.PI)
+                    .replace(/e/g, Math.E)
+                    .replace(/√/g, 'sqrt')
+                    .replace(/²/g, '^2')
+                    .replace(/³/g, '^3')
+                    .replace(/deg/g, 'deg')
+                    .replace(/rad/g, 'rad')
+                    .replace(/rand/g, Math.random())
+                    .replace(/∞/g, 'Infinity');
+
+                // Handle factorial
+                expr = expr.replace(/(\d+)!/g, (_, n) => `factorial(${n})`);
+
+                // Handle percentage
+                expr = expr.replace(/(\d+%)/g, (_, n) => `${parseFloat(n)/100}`);
+
+                // Handle 1/x
+                expr = expr.replace(/1\/(\d+)/g, (_, n) => `1/${n}`);
+
+                const result = math.evaluate(expr);
+                const formattedResult = Number.isInteger(result) ? 
+                    result : result.toFixed(6).replace(/\.?0+$/, '');
+                
+                history.push(`${display.value} = ${formattedResult}`);
+                historyDiv.innerHTML = history.join('<br>');
+                display.value = formattedResult;
+                historyDiv.scrollTop = historyDiv.scrollHeight;
+            } catch (error) {
+                display.value = 'Error';
+                setTimeout(() => {
+                    display.value = '';
+                    display.placeholder = 'Enter expression';
+                }, 1000);
+            }
+        }
+
+        // Enhanced Keyboard Support
+        document.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            const specialKeys = {
+                'enter': calculate,
+                'backspace': backspace,
+                'escape': clearDisplay,
+                'h': toggleHistory
+            };
+
+            if (specialKeys[key]) {
+                specialKeys[key]();
+                e.preventDefault();
+            } else if (key.match(/[0-9%\^\.\+\-\*\/\(\)]/)) {
+                addToDisplay(key);
+            } else if (key === '!') {
+                addToDisplay('!');
+            } else if (key === 's' && e.shiftKey) {
+                addFunction('sin(');
+            } else if (key === 'c' && e.shiftKey) {
+                addFunction('cos(');
+            } else if (key === 't' && e.shiftKey) {
+                addFunction('tan(');
+            }
+        });
+    </script>
+</body>
+</html>
